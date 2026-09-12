@@ -1,0 +1,37 @@
+name: Gerar APK - Agenda Fácil
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Descompactar projeto Agenda Fácil
+        run: |
+          mkdir projeto
+          unzip -o AgendaFacil-GitHub-Pronto.zip -d projeto
+          cd projeto
+          chmod +x gradlew
+
+      - name: Compilar APK
+        working-directory: projeto
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Disponibilizar APK para baixar
+        uses: actions/upload-artifact@v4
+        with:
+          name: AgendaFacil-APK
+          path: projeto/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
